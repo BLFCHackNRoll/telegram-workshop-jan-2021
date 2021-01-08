@@ -6,9 +6,11 @@ from ratelimit import limits
 import requests
 
 import telebot
+from telebot import types
 from flask import request
 from mal import Anime, AnimeSearch
 from pip._internal import commands
+import telegram
 
 from api.dialogflow_api import detect_intent_via_text, detect_intent_via_event
 from api.telegram_api import send_message, bot
@@ -26,6 +28,7 @@ from utils import \
     get_user_command_from_request
 
 ONE_SECOND = 1
+
 
 @limits(calls=2, period=ONE_SECOND)
 def call_api(url):
@@ -64,11 +67,34 @@ def webhook():
     anime = Anime(1)  # Cowboy Bebop
     search = AnimeSearch(user_input).results
     malid = search[0].mal_id
-    anime = Anime(malid)  # Cowboy Bebop
-    anime.reload()  # reload object
-    bot.send_message(user.id, str(anime.title_english) + ' is rated ' + str(anime.score))
-    # send_message(user, session, 'Anime is rated ' + str(anime.score))
-    return 'Anime is rated ' + str(anime.score)
+    message = Anime(malid)  # Cowboy Bebop
+    message.reload()  # reload object
+
+
+    handle_option(user.id, message)
+    return 'Anime is rated '
+
+
+def handle_option(id, message):
+    menu_markup = types.ReplyKeyboardMarkup(one_time_keyboard=True, row_width=1)
+    button1 = types.KeyboardButton(text="image")
+    button2 = types.KeyboardButton(text="synopsis")
+    button3 = types.KeyboardButton(text="episodes")
+    menu_markup.add(button1, button2, button3)
+    bot.send_message(id, 'Select one', reply_markup=menu_markup)
+    # bot.send_message(id, 'Got it', reply_markup=types.ReplyKeyboardRemove())
+    # if user_input == 'image':
+    #    bot.send_photo(id, res.url, caption=str(res.title_english) + ' is rated ' + str(res.score))
+    return ''
+
+
+# Here's a simple handler when user presses button with "Button 1" text
+@bot.message_handler(content_types=["text"], func=lambda message: message.text == "image")
+def func1(message):
+    keyboard = types.InlineKeyboardMarkup()
+    url_btn = types.InlineKeyboardButton(url="https://stackoverflow.com", text="Go to StackOverflow")
+    keyboard.add(url_btn)
+    bot.send_message(message.chat.id, "Image handler", reply_markup=keyboard)
 
 
 # Calls Dialogflow API to trigger an intent match

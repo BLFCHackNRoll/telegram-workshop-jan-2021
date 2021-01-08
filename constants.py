@@ -1,6 +1,6 @@
 DEFAULT_DIALOGFLOW_LANGUAGE_CODE = "en"
 MENU_CODES_TO_OPTIONS = {
-    "MENU_ITEM_BREAD": "Rye Sourdough Bread",
+    "MENU_ITEM_BREAD": "Jonas",
     "MENU_ITEM_DONUT": "Blueberry Jelly Donut",
     "MENU_ITEM_COOKIE": "Almond Crunch Cookie",
     "MENU_ITEM_SANDWICH": "BLT Sandwich",
@@ -26,4 +26,4 @@ ONGOING_ORDER_SUGGESTIONS = (
 # Change the following to suit your project
 DIALOGFLOW_PROJECT_ID = "ninja-van-dialogflow-devmy"
 GOOGLE_SERVICE_ACCOUNT_FILE_PATH = "ninja-van-dialogflow-devmy.json"
-TELEGRAM_API_TOKEN = "1547014681:AAHEqNoxtSz0kpMhKzrVJ_qDH_L5KdDaVhc"
+TELEGRAM_API_TOKEN = "1561103971:AAEr8QvFWgfKVwhDihLrhnO6mr0TnXGc-04"
