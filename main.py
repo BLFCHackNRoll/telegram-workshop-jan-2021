@@ -1,14 +1,15 @@
 from flask import Flask
 from flask_caching import Cache
-from telegram.ext import CallbackQueryHandler, dispatcher, MessageHandler, Filters
+from telegram import ReplyKeyboardRemove
+from telegram.ext import CallbackQueryHandler, dispatcher, MessageHandler, Filters, ConversationHandler
 import logging
 
-from handlers import startUp, echo, animesearch, animekeyboard, animeinfo, search
+from handlers import startUp, echo, animesearch, animekeyboard, button, start, help_command, search
+
 
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
                      level=logging.INFO)
 
-from inline_keyboard import button, help_command
 
 config = {
     "CACHE_TYPE": "simple",
@@ -20,28 +21,37 @@ cache = Cache(app)
 
 from controller import *
 
-updater = Updater("1561103971:AAEr8QvFWgfKVwhDihLrhnO6mr0TnXGc-04", use_context=True)
+
+updater = Updater("1547014681:AAHEqNoxtSz0kpMhKzrVJ_qDH_L5KdDaVhc", use_context=True)
+dispatcher = updater.dispatcher
+
 def main():
+    # dispatcher.add_handler(CommandHandler('start1', start1))
+    # dispatcher.add_handler(CallbackQueryHandler(help1, pattern='help1'))
+    # dispatcher.add_handler(CallbackQueryHandler(cancel, pattern='cancel'))
     # Create the Updater and pass it your bot's token.
     # Make sure to set use_context=True to use the new context based callbacks
     # Post version 12 this will no longer be necessary
     #updater = Updater("1547014681:AAHEqNoxtSz0kpMhKzrVJ_qDH_L5KdDaVhc", use_context=True)
-    updater.dispatcher.add_handler(CommandHandler('start', start))
-    updater.dispatcher.add_handler(CallbackQueryHandler(button))
-    updater.dispatcher.add_handler(CommandHandler('help', help_command))
-    info_handler = MessageHandler(Filters.regex(r'info'), animeinfo)
-    # info_handler = CommandHandler('info', animeinfo)
-    updater.dispatcher.add_handler(info_handler)
+
+    dispatcher.add_handler(CommandHandler('start', start))
+    dispatcher.add_handler(CallbackQueryHandler(button))
+    dispatcher.add_handler(CommandHandler('help', help_command))
+    search_handler = MessageHandler(Filters.regex(r'search'), search)
+    dispatcher.add_handler(search_handler)
+
     #Tutorial
     search_handler = MessageHandler(Filters.regex(r'search'), search)
     updater.dispatcher.add_handler(search_handler)
     start_handler = CommandHandler('startup', startUp)
-    updater.dispatcher.add_handler(start_handler)
-    #echo_handler = MessageHandler(Filters.text & (~Filters.command), animesearch)
-    #updater.dispatcher.add_handler(echo_handler)
+
+    dispatcher.add_handler(start_handler)
+    # echo_handler = MessageHandler(Filters.text & (~Filters.command), animesearch)
+    # updater.dispatcher.add_handler(echo_handler)
+
     #animekeyboard
     animekeyboard_handler = CommandHandler('animekeyboard', animekeyboard)
-    updater.dispatcher.add_handler(animekeyboard_handler)
+    dispatcher.add_handler(animekeyboard_handler)
 
     # Start the Bot
     updater.start_polling()
@@ -51,6 +61,37 @@ def main():
     updater.idle()
     return updater
 
+
+def start1(update: Update, context: CallbackContext) -> None:
+    keyboard = [
+                 [InlineKeyboardButton('Help', callback_data='help')]
+               ]
+    # Create initial message:
+    message = 'Welcome.'
+    update.message.reply_text(message, reply_markup=InlineKeyboardMarkup(keyboard))
+
+def help1(bot, update):
+    keyboard = [
+                 [InlineKeyboardButton('Leave', callback_data='cancel')]
+               ]
+    bot.edit_message_text(
+    text='Help ... help..',
+    chat_id=update.callback_query.message.chat_id,
+    message_id=update.callback_query.message.message_id,
+    reply_markup=InlineKeyboardMarkup(keyboard)
+    )
+    bot.answer_callback_query(update.callback_query.id, text='')
+
+def cancel(bot, update):
+
+    bot.edit_message_text(
+    text='Bye',
+    chat_id=update.callback_query.message.chat_id,
+    message_id=update.callback_query.message.message_id,
+    )
+    bot.answer_callback_query(update.callback_query.id, text='')
+
+    return ConversationHandler.END
 
 if __name__ == "__main__":
     main()

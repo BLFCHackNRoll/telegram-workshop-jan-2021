@@ -13,10 +13,11 @@ from mal import Anime, AnimeSearch
 from mal.anime_search import AnimeSearchResult
 from telebot import types
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
-from telegram.ext import Updater, CommandHandler, CallbackQueryHandler, CallbackContext
+from telegram.ext import Updater, CommandHandler, CallbackQueryHandler, CallbackContext, MessageHandler, Filters
 
 from api.telegram_api import send_message, bot
 from beans.user import User
+from handlers import animesearch
 
 logging.basicConfig(
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO
@@ -149,9 +150,9 @@ def status_command(res, query):
 def image_command(res, query):
     bot.send_photo(query.id, res.image_url)
 
-
-def help_command(update: Update, context: CallbackContext) -> None:
-    update.message.reply_text("Use /start to test this bot.")
+    
+def echo(update, context, args):
+    context.bot.send_message(chat_id=update.effective_chat.id, text=update.message.text)
 
 
 def startUpdater():
@@ -160,14 +161,6 @@ def startUpdater():
     # Post version 12 this will no longer be necessary
     updater = Updater("1561103971:AAEr8QvFWgfKVwhDihLrhnO6mr0TnXGc-04", use_context=True)
 
-    updater.dispatcher.add_handler(CommandHandler('start', start))
-    updater.dispatcher.add_handler(CallbackQueryHandler(button))
-    updater.dispatcher.add_handler(CommandHandler('help', help_command))
 
-    # Start the Bot
-    updater.start_polling()
 
-    # Run the bot until the user presses Ctrl-C or the process receives SIGINT,
-    # SIGTERM or SIGABRT
-    updater.idle()
-    return updater
+
