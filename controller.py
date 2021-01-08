@@ -19,7 +19,7 @@ from beans.user import User
 from cache import get_current_session
 from command_handlers import COMMAND_HANDLERS, handle_invalid_command
 from constants import MAIN_SUGGESTIONS
-from inline_keyboard import sendkeyboard, start, startUpdater
+from handlers import start
 from intent_handlers import INTENT_HANDLERS, handle_invalid_intent, __show_main_suggestions
 from main import app
 from utils import \
