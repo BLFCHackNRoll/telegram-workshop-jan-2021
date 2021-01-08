@@ -6,6 +6,7 @@ import logging
 
 from handlers import startUp, echo, animesearch, animekeyboard, button, start, help_command, search
 
+
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
                      level=logging.INFO)
 
@@ -20,8 +21,10 @@ cache = Cache(app)
 
 from controller import *
 
+
 updater = Updater("1547014681:AAHEqNoxtSz0kpMhKzrVJ_qDH_L5KdDaVhc", use_context=True)
 dispatcher = updater.dispatcher
+
 def main():
     # dispatcher.add_handler(CommandHandler('start1', start1))
     # dispatcher.add_handler(CallbackQueryHandler(help1, pattern='help1'))
@@ -30,16 +33,22 @@ def main():
     # Make sure to set use_context=True to use the new context based callbacks
     # Post version 12 this will no longer be necessary
     #updater = Updater("1547014681:AAHEqNoxtSz0kpMhKzrVJ_qDH_L5KdDaVhc", use_context=True)
+
     dispatcher.add_handler(CommandHandler('start', start))
     dispatcher.add_handler(CallbackQueryHandler(button))
     dispatcher.add_handler(CommandHandler('help', help_command))
     search_handler = MessageHandler(Filters.regex(r'search'), search)
     dispatcher.add_handler(search_handler)
+
     #Tutorial
+    search_handler = MessageHandler(Filters.regex(r'search'), search)
+    updater.dispatcher.add_handler(search_handler)
     start_handler = CommandHandler('startup', startUp)
+
     dispatcher.add_handler(start_handler)
     # echo_handler = MessageHandler(Filters.text & (~Filters.command), animesearch)
     # updater.dispatcher.add_handler(echo_handler)
+
     #animekeyboard
     animekeyboard_handler = CommandHandler('animekeyboard', animekeyboard)
     dispatcher.add_handler(animekeyboard_handler)
