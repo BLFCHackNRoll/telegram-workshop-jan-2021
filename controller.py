@@ -1,12 +1,13 @@
 from pprint import pprint
 
+from mal.anime_search import AnimeSearchResult
 from ratelimit import limits
 
 import requests
 
 import telebot
 from flask import request
-from mal import Anime
+from mal import Anime, AnimeSearch
 from pip._internal import commands
 
 from api.dialogflow_api import detect_intent_via_text, detect_intent_via_event
@@ -61,8 +62,11 @@ def webhook():
     session = get_current_session(user)
     user_input = get_user_input_from_request(req_body)
     anime = Anime(1)  # Cowboy Bebop
+    search = AnimeSearch(user_input).results
+    malid = search[0].mal_id
+    anime = Anime(malid)  # Cowboy Bebop
     anime.reload()  # reload object
-    bot.send_message(user.id, 'Anime is rated ' + str(anime.score))
+    bot.send_message(user.id, str(anime.title_english) + ' is rated ' + str(anime.score))
     # send_message(user, session, 'Anime is rated ' + str(anime.score))
     return 'Anime is rated ' + str(anime.score)
 
