@@ -39,10 +39,6 @@ def main():
     dispatcher.add_handler(CommandHandler('help', help_command))
     search_handler = MessageHandler(Filters.regex(r'search'), search)
     dispatcher.add_handler(search_handler)
-
-    #Tutorial
-    search_handler = MessageHandler(Filters.regex(r'search'), search)
-    updater.dispatcher.add_handler(search_handler)
     start_handler = CommandHandler('startup', startUp)
 
     dispatcher.add_handler(start_handler)
