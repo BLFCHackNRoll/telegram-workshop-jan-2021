@@ -1,12 +1,14 @@
 import random
 
+from flask import request
 from mal import AnimeSearch, Anime
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
 from telegram.ext import CallbackContext
 
 import genre
 from api.telegram_api import bot
-from genre import action, sports, sliceoflife, horror
+from genre import action, sports, sliceoflife, horror, scifi, adventure, romance, psychological, comedy, drama, fantasy
+from utils import get_user_from_request
 
 
 def startUp(update, context):
@@ -42,6 +44,9 @@ def animesearch(update, context):
         [InlineKeyboardButton("Web Comics", callback_data='3')],
     ]
 
+#search function after random anime is generated
+def animesearch(query):
+    handle_info(query, False)
 
 
 def animeinfo(update, context):
@@ -89,9 +94,11 @@ def button(update: Update, context: CallbackContext) -> None:
         context.bot.send_message(chat_id=update.effective_chat.id,
                                  text='Use the keyword search followed by the anime name')
     elif query.data[-4:] == 'info':
-        handle_info(query)
+        handle_info(query, True)
     elif query.data[-8:] == 'synopsis':
         synopsis_command(query.data[:-9], query)
+        # website = search[0].url
+        # context.bot.send_message(chat_id=update.effective_chat.id, text='No anime found')
 
     elif query.data[-5:] == 'image':
         image_command(query.data[:-6], query)
@@ -111,9 +118,10 @@ def button(update: Update, context: CallbackContext) -> None:
         query.edit_message_text(text='Which genre do you like?', reply_markup=animegenres())
         # context.bot.send_message(chat_id=update.effective_chat.id, text='You should watch Naruto')
     elif 'genre' in query.data:
-        slicedgenre = query.data.replace('genre', '').lower()
-        value = random.choice(list(eval(slicedgenre).values()))
-        context.bot.send_message(chat_id=update.effective_chat.id, text=str(value))
+        # slicedgenre = query.data.replace('genre', '').lower()
+        # value = random.choice(list(eval(slicedgenre).values()))
+        animesearch(query)
+        #context.bot.send_message(chat_id=update.effective_chat.id, text=str(value))
     else:
         keyboard = [
             [InlineKeyboardButton('info', callback_data=query.data + ' info')],
@@ -174,15 +182,26 @@ def animegenres():
     reply_markup = InlineKeyboardMarkup(keyboard)
     return reply_markup
 
-def handle_info(query):
-    anime = query.data[:-5]
+def handle_info(query, boolean):
+    if boolean :
+        anime = query.data[:-5]
+
+    else :
+        slicedgenre = query.data[5:].lower()
+        value = random.choice(list(eval(slicedgenre).values()))
+        search = AnimeSearch(value).results
+        anime = search[0].mal_id
+        website = search[0].url
+        # req_body = request.get_json()
+        # user = get_user_from_request(req_body)
+        # bot.send_message(user.id, str(website))
+
     keyboard = [
-        [InlineKeyboardButton('image', callback_data=anime + ' image')],
-        [InlineKeyboardButton('synopsis', callback_data=anime + ' synopsis')],
-        [InlineKeyboardButton('rank', callback_data=anime + ' rank')],
-        [InlineKeyboardButton('duration', callback_data=anime + ' duration')],
-        [InlineKeyboardButton('air date', callback_data=anime + ' air date')],
-        [InlineKeyboardButton('status', callback_data=anime + ' status')],
+        [InlineKeyboardButton('synopsis', callback_data=str(anime) + ' synopsis')],
+        [InlineKeyboardButton('rank', callback_data=str(anime) + ' rank')],
+        [InlineKeyboardButton('duration', callback_data=str(anime) + ' duration')],
+        [InlineKeyboardButton('air date', callback_data=str(anime) + ' air date')],
+        [InlineKeyboardButton('status', callback_data=str(anime) + ' status')],
     ]
     reply_markup = InlineKeyboardMarkup(keyboard)
     query.edit_message_text(text='Choose one:', reply_markup=reply_markup)
@@ -197,27 +216,27 @@ def handle_genre():
 
 
 def synopsis_command(res, query):
-    query.edit_message_text(text=Anime(res).title + ' synopsis:\n' + Anime(res).synopsis)
+    query.edit_message_text(text=Anime(res).title + ' synopsis:\n' + Anime(res).synopsis + "\n \n" + Anime(res).url)
 
 
 def rank_command(res, query):
-    query.edit_message_text(text=Anime(res).title + ' rank:\n' + str(Anime(res).rank))
+    query.edit_message_text(text=Anime(res).title + ' rank:\n' + str(Anime(res).rank) + "\n \n" + Anime(res).url)
 
 
 def duration_command(res, query):
-    query.edit_message_text(text=Anime(res).title + ' duration:\n' + Anime(res).duration)
+    query.edit_message_text(text=Anime(res).title + ' duration:\n' + Anime(res).duration + "\n \n" + Anime(res).url)
 
 
 def air_date_command(res, query):
-    query.edit_message_text(text=Anime(res).title + ' air date:\n' + Anime(res).aired)
+    query.edit_message_text(text=Anime(res).title + ' air date:\n' + Anime(res).aired + "\n \n" + Anime(res).url)
 
 
 def status_command(res, query):
-    query.edit_message_text(text=Anime(res).title + ' status:\n' + Anime(res).status)
+    query.edit_message_text(text=Anime(res).title + ' status:\n' + Anime(res).status + "\n \n" + Anime(res).url)
 
 
-def image_command(res, query):
-    bot.send_photo(query.id, res.image_url)
+# def image_command(res, query):
+#     bot.send_photo(query.id, res.image_url)
 
 
 genres = ["Action"
@@ -226,13 +245,10 @@ genres = ["Action"
     , 'Drama'
     , 'SliceofLife'
     , 'Fantasy'
-    , 'Magic'
-    , 'Supernatural'
     , 'Horror'
-    , 'Mystery'
     , 'Psychological'
     , 'Romance'
-    , 'Sci-Fi'
+    , 'SciFi'
     , 'Sports']
 
 
