@@ -5,6 +5,7 @@ from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
 from telegram.ext import CallbackContext
 
 import genre
+from api.telegram_api import bot
 from genre import action, sports, sliceoflife, horror
 
 
@@ -87,6 +88,25 @@ def button(update: Update, context: CallbackContext) -> None:
     if query.data == 'searchanime':
         context.bot.send_message(chat_id=update.effective_chat.id,
                                  text='Use the keyword search followed by the anime name')
+    elif query.data[-4:] == 'info':
+        handle_info(query)
+    elif query.data[-8:] == 'synopsis':
+        synopsis_command(query.data[:-9], query)
+
+    elif query.data[-5:] == 'image':
+        image_command(query.data[:-6], query)
+
+    elif query.data[-4:] == 'rank':
+        rank_command(query.data[:-5], query)
+
+    elif query.data[-8:] == 'duration':
+        duration_command(query.data[:-9], query)
+
+    elif query.data[-8:] == 'air date':
+        air_date_command(query.data[:-9], query)
+
+    elif query.data[-6:] == 'status':
+        status_command(query.data[:-7], query)
     elif query.data == 'getrecommendations' or query.data == 'donotlike' :
         query.edit_message_text(text='Which genre do you like?', reply_markup=animegenres())
         # context.bot.send_message(chat_id=update.effective_chat.id, text='You should watch Naruto')
@@ -95,10 +115,12 @@ def button(update: Update, context: CallbackContext) -> None:
         value = random.choice(list(eval(slicedgenre).values()))
         context.bot.send_message(chat_id=update.effective_chat.id, text=str(value))
     else:
-        anime = Anime(int(query.data))
-        query.edit_message_text(text=f"{anime.title} is rated: {anime.score}")
-        # query.edit_message_text(text=f"Selected option: {query.data}")
-
+        keyboard = [
+            [InlineKeyboardButton('info', callback_data=query.data + ' info')],
+            [InlineKeyboardButton('genre', callback_data=query.data + ' genre')],
+        ]
+        reply_markup = InlineKeyboardMarkup(keyboard)
+        query.edit_message_text(text='Choose one: ', reply_markup=reply_markup)
 
 
 def start(update: Update, context: CallbackContext) -> None:
@@ -152,6 +174,51 @@ def animegenres():
     reply_markup = InlineKeyboardMarkup(keyboard)
     return reply_markup
 
+def handle_info(query):
+    anime = query.data[:-5]
+    keyboard = [
+        [InlineKeyboardButton('image', callback_data=anime + ' image')],
+        [InlineKeyboardButton('synopsis', callback_data=anime + ' synopsis')],
+        [InlineKeyboardButton('rank', callback_data=anime + ' rank')],
+        [InlineKeyboardButton('duration', callback_data=anime + ' duration')],
+        [InlineKeyboardButton('air date', callback_data=anime + ' air date')],
+        [InlineKeyboardButton('status', callback_data=anime + ' status')],
+    ]
+    reply_markup = InlineKeyboardMarkup(keyboard)
+    query.edit_message_text(text='Choose one:', reply_markup=reply_markup)
+
+    #else:
+     #   anime = AnimeSearch(int(query.data))
+      #  query.edit_message_text(text=f"{anime.title} is rated: {anime.score}")
+        #query.edit_message_text(text=f"Selected option: {query.data}")
+
+def handle_genre():
+    return ''
+
+
+def synopsis_command(res, query):
+    query.edit_message_text(text=Anime(res).title + ' synopsis:\n' + Anime(res).synopsis)
+
+
+def rank_command(res, query):
+    query.edit_message_text(text=Anime(res).title + ' rank:\n' + str(Anime(res).rank))
+
+
+def duration_command(res, query):
+    query.edit_message_text(text=Anime(res).title + ' duration:\n' + Anime(res).duration)
+
+
+def air_date_command(res, query):
+    query.edit_message_text(text=Anime(res).title + ' air date:\n' + Anime(res).aired)
+
+
+def status_command(res, query):
+    query.edit_message_text(text=Anime(res).title + ' status:\n' + Anime(res).status)
+
+
+def image_command(res, query):
+    bot.send_photo(query.id, res.image_url)
+
 
 genres = ["Action"
     , 'Adventure'
@@ -167,4 +234,5 @@ genres = ["Action"
     , 'Romance'
     , 'Sci-Fi'
     , 'Sports']
+
 

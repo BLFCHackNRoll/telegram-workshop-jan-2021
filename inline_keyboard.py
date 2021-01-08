@@ -150,10 +150,6 @@ def status_command(res, query):
 def image_command(res, query):
     bot.send_photo(query.id, res.image_url)
 
-    
-def echo(update, context, args):
-    context.bot.send_message(chat_id=update.effective_chat.id, text=update.message.text)
-
 
 def startUpdater():
     # Create the Updater and pass it your bot's token.
