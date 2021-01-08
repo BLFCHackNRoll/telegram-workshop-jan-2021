@@ -6,3 +6,8 @@ pyTelegramBotAPI==3.7.4
 
 requests~=2.25.1
 pip~=20.3.3
+
+telegram~=0.0.1
+mal~=0.4.0
+ratelimit~=2.2.1
+django-ratelimit2~=0.4.2
