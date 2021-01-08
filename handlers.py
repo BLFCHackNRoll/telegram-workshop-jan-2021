@@ -4,6 +4,9 @@ from mal import AnimeSearch, Anime
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
 from telegram.ext import CallbackContext
 
+import genre
+from genre import action, sports, sliceoflife, horror
+
 
 def startUp(update, context):
     context.bot.send_message(chat_id=update.effective_chat.id, text="I'm a bot, please talk to me!")
@@ -67,6 +70,10 @@ def button(update: Update, context: CallbackContext) -> None:
     elif query.data == 'getrecommendations' or query.data == 'donotlike' :
         query.edit_message_text(text='Which genre do you like?', reply_markup=animegenres())
         # context.bot.send_message(chat_id=update.effective_chat.id, text='You should watch Naruto')
+    elif 'genre' in query.data:
+        slicedgenre = query.data.replace('genre', '').lower()
+        value = random.choice(list(eval(slicedgenre).values()))
+        context.bot.send_message(chat_id=update.effective_chat.id, text=str(value))
     else:
         anime = Anime(int(query.data))
         query.edit_message_text(text=f"{anime.title} is rated: {anime.score}")
@@ -115,10 +122,10 @@ def search(update: Update, context: CallbackContext) -> None:
 def animegenres():
     randos = random.sample(genres, 5)
     keyboard = [
-        [InlineKeyboardButton(str(randos[0]), callback_data=str(randos[0]))],
-        [InlineKeyboardButton(str(randos[1]), callback_data=str(randos[1]))],
-        [InlineKeyboardButton(str(randos[2]), callback_data=str(randos[2]))],
-        [InlineKeyboardButton(str(randos[3]), callback_data=str(randos[3]))],
+        [InlineKeyboardButton(str(randos[0]), callback_data='genre' + str(randos[0]))],
+        [InlineKeyboardButton(str(randos[1]), callback_data='genre' + str(randos[1]))],
+        [InlineKeyboardButton(str(randos[2]), callback_data='genre' + str(randos[2]))],
+        [InlineKeyboardButton(str(randos[3]), callback_data='genre' + str(randos[3]))],
         [InlineKeyboardButton("I don't like these", callback_data="donotlike")]
     ]
     reply_markup = InlineKeyboardMarkup(keyboard)
@@ -127,9 +134,9 @@ def animegenres():
 
 genres = ["Action"
     , 'Adventure'
-    ,',Comedy'
+    , 'Comedy'
     , 'Drama'
-    , 'Slice of Life'
+    , 'SliceofLife'
     , 'Fantasy'
     , 'Magic'
     , 'Supernatural'
@@ -137,6 +144,7 @@ genres = ["Action"
     , 'Mystery'
     , 'Psychological'
     , 'Romance'
-    , 'Sci-Fi']
+    , 'Sci-Fi'
+    , 'Sports']
 
 
