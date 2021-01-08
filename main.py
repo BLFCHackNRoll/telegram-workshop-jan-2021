@@ -3,7 +3,7 @@ from flask_caching import Cache
 from telegram.ext import CallbackQueryHandler, dispatcher, MessageHandler, Filters
 import logging
 
-from handlers import startUp, echo, animesearch, animekeyboard
+from handlers import startUp, echo, animesearch, animekeyboard, animeinfo, search
 
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
                      level=logging.INFO)
@@ -20,7 +20,7 @@ cache = Cache(app)
 
 from controller import *
 
-updater = Updater("1547014681:AAHEqNoxtSz0kpMhKzrVJ_qDH_L5KdDaVhc", use_context=True)
+updater = Updater("1561103971:AAEr8QvFWgfKVwhDihLrhnO6mr0TnXGc-04", use_context=True)
 def main():
     # Create the Updater and pass it your bot's token.
     # Make sure to set use_context=True to use the new context based callbacks
@@ -29,11 +29,16 @@ def main():
     updater.dispatcher.add_handler(CommandHandler('start', start))
     updater.dispatcher.add_handler(CallbackQueryHandler(button))
     updater.dispatcher.add_handler(CommandHandler('help', help_command))
+    info_handler = MessageHandler(Filters.regex(r'info'), animeinfo)
+    # info_handler = CommandHandler('info', animeinfo)
+    updater.dispatcher.add_handler(info_handler)
     #Tutorial
+    search_handler = MessageHandler(Filters.regex(r'search'), search)
+    updater.dispatcher.add_handler(search_handler)
     start_handler = CommandHandler('startup', startUp)
     updater.dispatcher.add_handler(start_handler)
-    echo_handler = MessageHandler(Filters.text & (~Filters.command), animesearch)
-    updater.dispatcher.add_handler(echo_handler)
+    #echo_handler = MessageHandler(Filters.text & (~Filters.command), animesearch)
+    #updater.dispatcher.add_handler(echo_handler)
     #animekeyboard
     animekeyboard_handler = CommandHandler('animekeyboard', animekeyboard)
     updater.dispatcher.add_handler(animekeyboard_handler)

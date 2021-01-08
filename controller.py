@@ -52,7 +52,7 @@ def hello_world():
 # Validates incoming webhook request to make sure required fields are present, before processing
 @app.route('/webhook', methods=['POST'])
 def webhook():
-    updater = Updater("1547014681:AAHEqNoxtSz0kpMhKzrVJ_qDH_L5KdDaVhc", use_context=True)
+    updater = Updater("1561103971:AAEr8QvFWgfKVwhDihLrhnO6mr0TnXGc-04", use_context=True)
     updater.dispatcher.add_handler(CommandHandler('start', start))
     #updater = startUpdater()
     req_body = request.get_json()
@@ -65,7 +65,7 @@ def webhook():
         #sendKeyboard(user, updater, search)
         malid = search[0].mal_id
         anime = Anime(malid)
-        bot.send_message(user.id, str(anime.title_english) + ' is rated ' + str(anime.score))
+        # bot.send_message(user.id, str(anime.title_english) + ' is rated ' + str(anime.score))
     except ValueError:
         bot.send_message(user.id, 'No anime found')
 

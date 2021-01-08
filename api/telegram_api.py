@@ -23,8 +23,4 @@ def send_message_with_options(user: User, state, session_id, response, *options,
     markup = types.ReplyKeyboardMarkup(one_time_keyboard=True, row_width=row_width)
     markup.add(*options)
 
-<<<<<<< HEAD
     return bot.send_message(user.id, response, reply_markup=markup)
-=======
-    return bot.send_message(user.id, response, reply_markup=markup)
->>>>>>> ebd1b88e806606792545f4b311e65317a46d053d
