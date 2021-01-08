@@ -39,6 +39,25 @@ def animesearch(update, context):
     ]
 
 
+
+def animeinfo(update, context):
+    anime = str(update.message.text)[6:]
+    search = AnimeSearch(anime).results
+    title = str(Anime(search[0].mal_id).title_english)
+
+    keyboard = [
+        [InlineKeyboardButton(title + ' image', callback_data=title + ' image')],
+        [InlineKeyboardButton(title + ' synopsis', callback_data=title + ' synopsis')],
+        [InlineKeyboardButton(title + ' rank', callback_data=title + ' rank')],
+        [InlineKeyboardButton(title + ' duration', callback_data=title + ' duration')],
+        [InlineKeyboardButton(title + ' air date', callback_data=title + ' air date')],
+        [InlineKeyboardButton(title + ' status', callback_data=title + ' status')],
+    ]
+    reply_markup = InlineKeyboardMarkup(keyboard)
+    update.message.reply_text(anime, reply_markup=reply_markup)
+
+
+
 def animekeyboard(update, context: CallbackContext) -> None:
     keyboard = [
         [
@@ -49,6 +68,7 @@ def animekeyboard(update, context: CallbackContext) -> None:
     ]
     reply_markup = InlineKeyboardMarkup(keyboard)
     update.message.reply_text('Please choose:', reply_markup=reply_markup)
+
 
 
 def help_command(update: Update, context: CallbackContext) -> None:
@@ -71,6 +91,7 @@ def button(update: Update, context: CallbackContext) -> None:
         anime = Anime(int(query.data))
         query.edit_message_text(text=f"{anime.title} is rated: {anime.score}")
         # query.edit_message_text(text=f"Selected option: {query.data}")
+
 
 
 def start(update: Update, context: CallbackContext) -> None:
@@ -138,5 +159,4 @@ genres = ["Action"
     , 'Psychological'
     , 'Romance'
     , 'Sci-Fi']
-
 

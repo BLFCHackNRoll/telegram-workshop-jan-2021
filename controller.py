@@ -5,12 +5,15 @@ from ratelimit import limits
 import requests
 
 import telebot
+from telebot import types
+
 from flask import request, jsonify
 from mal import Anime, AnimeSearch
 from pip._internal import commands
 from telebot.types import Update
 from telegram  import InlineKeyboardButton, InlineKeyboardMarkup, update
 from telegram.ext import CallbackContext, Updater, CommandHandler
+
 
 from api.dialogflow_api import detect_intent_via_text, detect_intent_via_event
 from api.telegram_api import send_message, bot, send_message_with_options
@@ -31,6 +34,7 @@ from utils import \
 
 ONE_SECOND = 1
 
+
 @limits(calls=2, period=ONE_SECOND)
 def call_api(url):
     response = requests.get(url)
@@ -48,7 +52,7 @@ def hello_world():
 # Validates incoming webhook request to make sure required fields are present, before processing
 @app.route('/webhook', methods=['POST'])
 def webhook():
-    updater = Updater("1547014681:AAHEqNoxtSz0kpMhKzrVJ_qDH_L5KdDaVhc", use_context=True)
+    updater = Updater("1561103971:AAEr8QvFWgfKVwhDihLrhnO6mr0TnXGc-04", use_context=True)
     updater.dispatcher.add_handler(CommandHandler('start', start))
     #updater = startUpdater()
     req_body = request.get_json()
@@ -61,7 +65,7 @@ def webhook():
         #sendKeyboard(user, updater, search)
         malid = search[0].mal_id
         anime = Anime(malid)
-        bot.send_message(user.id, str(anime.title_english) + ' is rated ' + str(anime.score))
+        # bot.send_message(user.id, str(anime.title_english) + ' is rated ' + str(anime.score))
     except ValueError:
         bot.send_message(user.id, 'No anime found')
 
