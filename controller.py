@@ -1,5 +1,9 @@
 from pprint import pprint
 
+from ratelimit import limits
+
+import requests
+
 import telebot
 from flask import request
 from mal import Anime
@@ -19,6 +23,16 @@ from utils import \
     default_if_blank, \
     is_not_blank, \
     get_user_command_from_request
+
+ONE_SECOND = 1
+
+@limits(calls=2, period=ONE_SECOND)
+def call_api(url):
+    response = requests.get(url)
+
+    if response.status_code != 200:
+        raise Exception('API response: {}'.format(response.status_code))
+    return response
 
 
 @app.route('/')
@@ -49,7 +63,7 @@ def webhook():
     anime = Anime(1)  # Cowboy Bebop
     anime.reload()  # reload object
     bot.send_message(user.id, 'Anime is rated ' + str(anime.score))
-    #send_message(user, session, 'Anime is rated ' + str(anime.score))
+    # send_message(user, session, 'Anime is rated ' + str(anime.score))
     return 'Anime is rated ' + str(anime.score)
 
 

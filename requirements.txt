@@ -5,5 +5,4 @@ Flask-Caching==1.9.0
 pyTelegramBotAPI==3.7.4
 
 requests~=2.25.1
-mal~=0.4.0
 pip~=20.3.3
