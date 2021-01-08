@@ -2,21 +2,25 @@ from pprint import pprint
 
 from mal.anime_search import AnimeSearchResult
 from ratelimit import limits
-
 import requests
 
 import telebot
-from flask import request
+from flask import request, jsonify
 from mal import Anime, AnimeSearch
 from pip._internal import commands
+from telebot.types import Update
+from telegram  import InlineKeyboardButton, InlineKeyboardMarkup, update
+from telegram.ext import CallbackContext, Updater, CommandHandler
 
 from api.dialogflow_api import detect_intent_via_text, detect_intent_via_event
-from api.telegram_api import send_message, bot
+from api.telegram_api import send_message, bot, send_message_with_options
 from beans.session import Session
 from beans.user import User
 from cache import get_current_session
 from command_handlers import COMMAND_HANDLERS, handle_invalid_command
-from intent_handlers import INTENT_HANDLERS, handle_invalid_intent
+from constants import MAIN_SUGGESTIONS
+from inline_keyboard import sendkeyboard, start, startUpdater
+from intent_handlers import INTENT_HANDLERS, handle_invalid_intent, __show_main_suggestions
 from main import app
 from utils import \
     get_user_from_request, \
@@ -42,33 +46,26 @@ def hello_world():
 
 
 # Validates incoming webhook request to make sure required fields are present, before processing
-# @app.route('/webhook', methods=['POST'])
-# def webhook():
-#     # FILL IN CODE
-#     req_body = request.get_json()
-#     user = get_user_from_request(req_body)
-#     session = get_current_session(user)
-#     user_input = get_user_input_from_request(req_body)
-#
-#     if is_not_blank(user.id, user_input):
-#         __process_dialogflow_input(user, session, user_input)
-#     return 'Got your message'
-
-# Validates incoming webhook request to make sure required fields are present, before processing
 @app.route('/webhook', methods=['POST'])
 def webhook():
+    updater = Updater("1547014681:AAHEqNoxtSz0kpMhKzrVJ_qDH_L5KdDaVhc", use_context=True)
+    updater.dispatcher.add_handler(CommandHandler('start', start))
+    #updater = startUpdater()
     req_body = request.get_json()
     user = get_user_from_request(req_body)
     session = get_current_session(user)
     user_input = get_user_input_from_request(req_body)
-    anime = Anime(1)  # Cowboy Bebop
-    search = AnimeSearch(user_input).results
-    malid = search[0].mal_id
-    anime = Anime(malid)  # Cowboy Bebop
-    anime.reload()  # reload object
-    bot.send_message(user.id, str(anime.title_english) + ' is rated ' + str(anime.score))
-    # send_message(user, session, 'Anime is rated ' + str(anime.score))
-    return 'Anime is rated ' + str(anime.score)
+
+    try :
+        search = AnimeSearch(user_input).results
+        #sendKeyboard(user, updater, search)
+        malid = search[0].mal_id
+        anime = Anime(malid)
+        bot.send_message(user.id, str(anime.title_english) + ' is rated ' + str(anime.score))
+    except ValueError:
+        bot.send_message(user.id, 'No anime found')
+
+    return 'Anime is rated '
 
 
 # Calls Dialogflow API to trigger an intent match
@@ -76,6 +73,5 @@ def webhook():
 def __process_dialogflow_input(user: User, session: Session, user_input):
     intent_result = detect_intent_via_text(session.id, user_input)
     intent_action = default_if_blank(intent_result.action, '')
-    if is_not_blank(intent_action):
-        INTENT_HANDLERS.get(intent_action, handle_invalid_intent)(user, intent_result, session.id)
+    __show_main_suggestions(user, intent_result, session.id)
     return intent_result
